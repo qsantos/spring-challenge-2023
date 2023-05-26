@@ -193,7 +193,21 @@ fn main() {
 
     loop {
         game = game.update(&mut lines).unwrap();
-        let action = Action::Wait;
+
+        let mut action = Action::Wait;
+
+        let allied_base = game.allied_bases[0];
+        for (i, cell) in game.cells.iter().enumerate() {
+            if cell.resources != 0 {
+                action = Action::Line(ActionLine {
+                    source: allied_base,
+                    destination: i,
+                    strength: 100,
+                });
+                break;
+            }
+        }
+
         println!("{}", action);
     }
 }
