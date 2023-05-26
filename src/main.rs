@@ -137,6 +137,17 @@ impl Game {
             ennemy_bases,
         })
     }
+
+    fn update<T: BufRead>(mut self, lines: &mut Lines<T>) -> Result<Game, ParsingError> {
+        for cell in self.cells.iter_mut() {
+            let line = next_line(lines)?;
+            let inputs = line.split(" ").collect::<Vec<_>>();
+            cell.resources = parse_i32(inputs[0])?;
+            cell.allied_ants = parse_i32(inputs[1])?;
+            cell.ennemy_ants = parse_i32(inputs[2])?;
+        }
+        Ok(self)
+    }
 }
 
 struct ActionLine {
@@ -181,14 +192,7 @@ fn main() {
     let mut game = Game::parse(&mut lines).unwrap();
 
     loop {
-        for cell in game.cells.iter_mut() {
-            let line = next_line(&mut lines).unwrap();
-            let inputs = line.split(" ").collect::<Vec<_>>();
-            cell.resources = parse_i32(inputs[0]).unwrap();
-            cell.allied_ants = parse_i32(inputs[1]).unwrap();
-            cell.ennemy_ants = parse_i32(inputs[2]).unwrap();
-        }
-
+        game = game.update(&mut lines).unwrap();
         let action = Action::Wait;
         println!("{}", action);
     }
