@@ -1,6 +1,7 @@
 use std::{
+    convert::{TryFrom, TryInto},
     fmt::Display,
-    io::{self, BufRead, Lines},
+    io,
     num::ParseIntError,
     str::FromStr,
 };
@@ -10,7 +11,6 @@ enum ParsingError {
     WrongNumberOfElements(String, usize, usize),
     NotAnInteger(String, ParseIntError),
     InvalidCellKind(i32),
-    EarlyEndOfFile,
     IoError(io::Error),
 }
 
@@ -26,11 +26,11 @@ fn parse_usize(s: &str) -> Result<usize, ParsingError> {
         .map_err(|e| ParsingError::NotAnInteger(s.to_string(), e))
 }
 
-fn next_line<T: BufRead>(lines: &mut Lines<T>) -> Result<String, ParsingError> {
-    match lines.next() {
-        None => Err(ParsingError::EarlyEndOfFile),
-        Some(Err(e)) => Err(ParsingError::IoError(e)),
-        Some(Ok(v)) => Ok(v),
+fn next_line() -> Result<String, ParsingError> {
+    let mut line = String::new();
+    match io::stdin().read_line(&mut line) {
+        Err(e) => Err(ParsingError::IoError(e)),
+        Ok(_) => Ok(line),
     }
 }
 
@@ -120,16 +120,16 @@ impl Game {
         Ok(ret)
     }
 
-    fn parse<T: BufRead>(lines: &mut Lines<T>) -> Result<Game, ParsingError> {
-        let number_of_cells = parse_usize(&next_line(lines)?)?;
+    fn parse() -> Result<Game, ParsingError> {
+        let number_of_cells = parse_usize(&next_line()?)?;
         let mut cells = Vec::new();
         for _ in 0..number_of_cells {
-            cells.push(next_line(lines)?.parse()?);
+            cells.push(next_line()?.parse()?);
         }
 
-        let number_of_bases = parse_usize(&next_line(lines)?)?;
-        let allied_bases = Game::parse_bases(&next_line(lines)?, number_of_bases)?;
-        let ennemy_bases = Game::parse_bases(&next_line(lines)?, number_of_bases)?;
+        let number_of_bases = parse_usize(&next_line()?)?;
+        let allied_bases = Game::parse_bases(&next_line()?, number_of_bases)?;
+        let ennemy_bases = Game::parse_bases(&next_line()?, number_of_bases)?;
 
         Ok(Game {
             cells,
@@ -138,9 +138,9 @@ impl Game {
         })
     }
 
-    fn update<T: BufRead>(mut self, lines: &mut Lines<T>) -> Result<Game, ParsingError> {
+    fn update(mut self) -> Result<Game, ParsingError> {
         for cell in self.cells.iter_mut() {
-            let line = next_line(lines)?;
+            let line = next_line()?;
             let inputs = line.split(" ").collect::<Vec<_>>();
             cell.resources = parse_i32(inputs[0])?;
             cell.allied_ants = parse_i32(inputs[1])?;
@@ -188,11 +188,10 @@ impl Display for Action {
 }
 
 fn main() {
-    let mut lines = io::stdin().lines();
-    let mut game = Game::parse(&mut lines).unwrap();
+    let mut game = Game::parse().unwrap();
 
     loop {
-        game = game.update(&mut lines).unwrap();
+        game = game.update().unwrap();
 
         let mut action = Action::Wait;
 
