@@ -225,7 +225,7 @@ impl Game {
         None
     }
 
-    fn assign_moves(self, beacons: Vec<ActionBeacon>) -> Vec<MoveAssignment> {
+    fn assign_moves(&self, beacons: Vec<ActionBeacon>) -> Vec<MoveAssignment> {
         // sources (current ant positions)
         struct Source {
             location: usize,
@@ -316,6 +316,25 @@ impl Game {
         _ennemy_beacons: Vec<ActionBeacon>,
     ) -> Self {
         let move_assignments = self.assign_moves(allied_beacons);
+        for move_assignment in move_assignments {
+            let MoveAssignment {
+                source,
+                destination,
+                amount,
+            } = move_assignment;
+            let path = self.path(source, destination);
+            if path.len() > 1 {
+                let source = &mut self.cells[source];
+                // TODO: abstract allied_ants/ennemy_ants
+                assert!(source.allied_ants >= amount);
+                source.allied_ants -= amount;
+
+                let next_step = path[1];
+                let next_step = &mut self.cells[next_step];
+                // TODO: abstract allied_ants/ennemy_ants
+                next_step.allied_ants += amount;
+            }
+        }
         self
     }
 }
