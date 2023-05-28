@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashSet, VecDeque},
+    collections::{HashMap, HashSet, VecDeque},
     convert::{TryFrom, TryInto},
     fmt::Display,
     io,
@@ -149,6 +149,36 @@ impl Game {
             cell.ennemy_ants = parse_i32(inputs[2])?;
         }
         Ok(self)
+    }
+
+    fn path(&self, source: usize, destination: usize) -> Vec<usize> {
+        let mut previous = HashMap::new();
+        let mut q = VecDeque::new();
+        q.push_back((0, source));
+        while let Some((distance, state)) = q.pop_front() {
+            if state == destination {
+                let mut path = Vec::new();
+                let mut current = state;
+                path.push(current);
+                while let Some(&previous) = previous.get(&current) {
+                    current = previous;
+                    path.push(current);
+                }
+                path.reverse();
+                return path;
+            }
+
+            let cell = &self.cells[state];
+            for &neighbor in &cell.neighbors {
+                if previous.contains_key(&neighbor) {
+                    continue;
+                }
+                previous.insert(neighbor, state);
+
+                q.push_back((distance + 1, neighbor));
+            }
+        }
+        unreachable!();
     }
 
     fn distance(&self, source: usize, destination: usize) -> usize {
