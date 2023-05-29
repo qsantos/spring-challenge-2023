@@ -8,7 +8,7 @@ use std::{
 };
 
 #[derive(Debug)]
-enum ParsingError {
+pub enum ParsingError {
     WrongNumberOfElements(String, usize, usize),
     NotAnInteger(String, ParseIntError),
     InvalidCellKind(i32),
@@ -36,7 +36,7 @@ fn next_line() -> Result<String, ParsingError> {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-enum CellKind {
+pub enum CellKind {
     Empty = 0,
     Eggs = 1,
     Crystals = 2,
@@ -55,7 +55,7 @@ impl TryFrom<i32> for CellKind {
 }
 
 #[derive(Clone, Debug)]
-struct Cell {
+pub struct Cell {
     kind: CellKind,
     resources: i32,
     neighbors: Vec<usize>,
@@ -94,10 +94,10 @@ impl FromStr for Cell {
 }
 
 #[derive(Clone, Debug)]
-struct Game {
-    cells: Vec<Cell>,
-    allied_bases: Vec<usize>,
-    ennemy_bases: Vec<usize>,
+pub struct Game {
+    pub cells: Vec<Cell>,
+    pub allied_bases: Vec<usize>,
+    pub ennemy_bases: Vec<usize>,
 }
 
 struct MoveAssignment {
@@ -122,7 +122,7 @@ impl Game {
         Ok(ret)
     }
 
-    fn parse() -> Result<Game, ParsingError> {
+    pub fn parse() -> Result<Game, ParsingError> {
         let number_of_cells = parse_usize(&next_line()?)?;
         let mut cells = Vec::new();
         for _ in 0..number_of_cells {
@@ -140,7 +140,7 @@ impl Game {
         })
     }
 
-    fn read_update(mut self) -> Result<Game, ParsingError> {
+    pub fn read_update(mut self) -> Result<Game, ParsingError> {
         for cell in self.cells.iter_mut() {
             let line = next_line()?;
             let inputs = line.split(" ").collect::<Vec<_>>();
@@ -203,7 +203,7 @@ impl Game {
         unreachable!();
     }
 
-    fn closest_cell(&self, source: usize, target_kind: CellKind) -> Option<(usize, usize)> {
+    pub fn closest_cell(&self, source: usize, target_kind: CellKind) -> Option<(usize, usize)> {
         let mut visited = HashSet::new();
         let mut q = VecDeque::new();
         q.push_back((0, source));
@@ -352,25 +352,25 @@ impl Game {
 }
 
 #[derive(Debug, Eq, PartialEq)]
-struct ActionLine {
-    source: usize,
-    destination: usize,
-    strength: i32,
+pub struct ActionLine {
+    pub source: usize,
+    pub destination: usize,
+    pub strength: i32,
 }
 
 #[derive(Debug, Eq, PartialEq)]
-struct ActionBeacon {
-    location: usize,
-    strength: i32,
+pub struct ActionBeacon {
+    pub location: usize,
+    pub strength: i32,
 }
 
 #[derive(Debug, Eq, PartialEq)]
-struct ActionMessage {
-    message: String,
+pub struct ActionMessage {
+    pub message: String,
 }
 
 #[derive(Debug, Eq, PartialEq)]
-enum Action {
+pub enum Action {
     Wait,
     Line(ActionLine),
     Beacon(ActionBeacon),
