@@ -225,6 +225,18 @@ impl Game {
         None
     }
 
+    fn beacons_of_line(&self, line: ActionLine) -> Vec<ActionBeacon> {
+        let ActionLine {
+            source,
+            destination,
+            strength,
+        } = line;
+        self.path(source, destination)
+            .iter()
+            .map(|&location| ActionBeacon { location, strength })
+            .collect()
+    }
+
     fn assign_moves(&self, beacons: Vec<ActionBeacon>) -> Vec<MoveAssignment> {
         // sources (current ant positions)
         struct Source {
