@@ -1,5 +1,6 @@
 use spring_challenge_2023::Game;
 
 fn main() {
-    let _game = Game::parse().unwrap();
+    let game = Game::parse().unwrap();
+    game.write();
 }

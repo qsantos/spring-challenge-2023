@@ -54,6 +54,12 @@ impl TryFrom<i32> for CellKind {
     }
 }
 
+impl ToString for CellKind {
+    fn to_string(&self) -> String {
+        (*self as i32).to_string()
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Cell {
     kind: CellKind,
@@ -90,6 +96,23 @@ impl FromStr for Cell {
             ennemy_ants: 0,
         };
         Ok(base_cell)
+    }
+}
+
+impl ToString for Cell {
+    fn to_string(&self) -> String {
+        // TODO: there must be a better way
+        let mut neighbors = [-1i32; 6];
+        for (source, destination) in self.neighbors.iter().zip(neighbors.iter_mut()) {
+            *destination = *source as i32;
+        }
+        let neighbors: Vec<String> = neighbors.iter().map(|x| x.to_string()).collect();
+        format!(
+            "{} {} {}",
+            self.kind.to_string(),
+            self.resources,
+            neighbors.join(" "),
+        )
     }
 }
 
@@ -138,6 +161,27 @@ impl Game {
             allied_bases,
             ennemy_bases,
         })
+    }
+
+    pub fn write_bases(bases: &Vec<usize>) {
+        println!(
+            "{}",
+            bases
+                .iter()
+                .map(|base| base.to_string())
+                .collect::<Vec<String>>()
+                .join(" ")
+        );
+    }
+
+    pub fn write(&self) {
+        println!("{}", self.cells.len());
+        for cell in &self.cells {
+            println!("{}", cell.to_string());
+        }
+        println!("{}", self.allied_bases.len());
+        Self::write_bases(&self.allied_bases);
+        Self::write_bases(&self.ennemy_bases);
     }
 
     pub fn read_update(mut self) -> Result<Game, ParsingError> {
