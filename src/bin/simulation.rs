@@ -1,3 +1,5 @@
+use spring_challenge_2023::Game;
+
 fn main() {
-    println!("Hello, world!");
+    let _game = Game::parse().unwrap();
 }
