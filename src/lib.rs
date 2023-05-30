@@ -80,7 +80,7 @@ impl FromStr for Cell {
         let base_cell = Cell {
             kind: inputs[0].try_into()?,
             resources: inputs[1],
-            neighbors: inputs[3..=7]
+            neighbors: inputs[2..=7]
                 .into_iter()
                 .copied()
                 .filter(|&v| v >= 0)
