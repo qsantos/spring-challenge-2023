@@ -2,7 +2,7 @@ use std::{
     collections::{HashMap, HashSet, VecDeque},
     convert::{TryFrom, TryInto},
     fmt::Display,
-    io,
+    io::{self, Write},
     num::ParseIntError,
     str::FromStr,
 };
@@ -163,25 +163,27 @@ impl Game {
         })
     }
 
-    pub fn write_bases(bases: &Vec<usize>) {
-        println!(
-            "{}",
+    pub fn write_bases<T: Write>(writer: &mut T, bases: &Vec<usize>) {
+        write!(
+            writer,
+            "{}\n",
             bases
                 .iter()
                 .map(|base| base.to_string())
                 .collect::<Vec<String>>()
                 .join(" ")
-        );
+        )
+        .unwrap();
     }
 
-    pub fn write(&self) {
-        println!("{}", self.cells.len());
+    pub fn write<T: Write>(&self, writer: &mut T) {
+        write!(writer, "{}\n", self.cells.len()).unwrap();
         for cell in &self.cells {
-            println!("{}", cell.to_string());
+            write!(writer, "{}\n", cell.to_string()).unwrap();
         }
-        println!("{}", self.allied_bases.len());
-        Self::write_bases(&self.allied_bases);
-        Self::write_bases(&self.ennemy_bases);
+        write!(writer, "{}\n", self.allied_bases.len()).unwrap();
+        Self::write_bases(writer, &self.allied_bases);
+        Self::write_bases(writer, &self.ennemy_bases);
     }
 
     pub fn read_update(mut self) -> Result<Game, ParsingError> {
