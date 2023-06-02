@@ -24,4 +24,8 @@ fn main() {
     let game = Game::parse().unwrap();
     game.write(&mut bot1_input);
     game.write(&mut bot2_input);
+    loop {
+        game.write_update(&mut bot1_input);
+        game.write_update(&mut bot2_input);
+    }
 }

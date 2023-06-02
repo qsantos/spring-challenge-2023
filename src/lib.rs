@@ -197,6 +197,17 @@ impl Game {
         Ok(self)
     }
 
+    pub fn write_update<T: Write>(&self, writer: &mut T) {
+        for cell in self.cells.iter() {
+            write!(
+                writer,
+                "{} {} {}",
+                cell.resources, cell.allied_ants, cell.ennemy_ants
+            )
+            .unwrap();
+        }
+    }
+
     fn path(&self, source: usize, destination: usize) -> Vec<usize> {
         let mut previous = HashMap::new();
         let mut q = VecDeque::new();
